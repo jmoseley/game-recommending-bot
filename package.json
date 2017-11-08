@@ -1,0 +1,9 @@
+{
+  "name": "game-recommending-bot",
+  "version": "1.0.0",
+  "description": "A bot that responds to messages and provides game information.",
+  "main": "dist/start.js",
+  "repository": "https://github.com/jmoseley/game-recommending-bot.git",
+  "author": "Jeremy Moseley <jeremy@jeremymoseley.net>",
+  "license": "MIT"
+}
