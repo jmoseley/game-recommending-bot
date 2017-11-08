@@ -1,9 +1,12 @@
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 
-import { StatusHandler } from './handlers';
+import * as actions from './actions';
+import * as handlers from './handlers';
 import * as config from './lib/config';
 import createLogger from './lib/logger';
+import SteamDetails from './lib/steam_details';
+import SteamStore from './lib/steam_store';
 
 // I suck at types.
 const Router: any = require('express-promise-router');
@@ -17,8 +20,16 @@ if (config.isLocalDev()) {
 
 async function start(): Promise<void> {
   LOG.info('Starting game-recommending-bot');
+  if (!process.env.STEAM_API_KEY) {
+    throw new Error('STEAM_API_KEY is required, exiting.');
+  }
+  const steamDetailsClient = new SteamDetails(process.env.STEAM_API_KEY as string);
+  const steamStore = new SteamStore(steamDetailsClient);
 
-  const statusHandler = new StatusHandler();
+  const messageActions = new actions.MessageActions(steamDetailsClient, steamStore);
+
+  const statusHandler = new handlers.StatusHandler();
+  const messageHandler = new handlers.MessageHandler(messageActions);
 
   const app: express.Application = express();
   // TODO: API Key middleware.
@@ -33,6 +44,7 @@ async function start(): Promise<void> {
   const router = Router();
   // TODO: Make the handlers own the routes.
   router.get('/status', statusHandler.status);
+  router.get('/message/new', messageHandler.newMessage);
 
   app.use(router);
 
