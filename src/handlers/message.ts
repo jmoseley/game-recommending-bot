@@ -15,6 +15,11 @@ export class MessageHandler {
     const isMentioned = _.get(req.query, 'isMentioned') === 'true' ? true : false;
     // const authorId = _.get(req.query, 'authorId');
 
+    if (!message) {
+      res.status(400).send('Message is required.');
+      return;
+    }
+
     const result = await this.messageActions.handleMessage(message, isMentioned);
 
     res.status(200);
