@@ -1,0 +1,13 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "scripts",
+  "repository": "jmoseley/discord-replay/scripts",
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "forever": "^0.15.3",
+    "nodemon": "^1.12.1"
+  },
+  "dependencies": {}
+}
