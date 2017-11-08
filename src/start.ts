@@ -7,6 +7,7 @@ import * as config from './lib/config';
 import createLogger from './lib/logger';
 import SteamDetails from './lib/steam_details';
 import SteamStore from './lib/steam_store';
+import * as middleware from './middleware';
 
 // I suck at types.
 const Router: any = require('express-promise-router');
@@ -23,6 +24,9 @@ async function start(): Promise<void> {
   if (!process.env.STEAM_API_KEY) {
     throw new Error('STEAM_API_KEY is required, exiting.');
   }
+  if (!process.env.API_KEY) {
+    throw new Error('API_KEY is required, exiting.');
+  }
   const steamDetailsClient = new SteamDetails(process.env.STEAM_API_KEY as string);
   const steamStore = new SteamStore(steamDetailsClient);
 
@@ -38,6 +42,7 @@ async function start(): Promise<void> {
     limit: '20mb',
   }));
   app.use(bodyParser.json({ limit: '20mb' }));
+  app.use(middleware.apiKey(process.env.API_KEY as string));
 
   // TODO: Pretty error middleware.
 
