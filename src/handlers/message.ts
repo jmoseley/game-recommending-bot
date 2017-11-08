@@ -3,6 +3,9 @@ import * as _ from 'lodash';
 import * as autobind from 'protobind';
 
 import { MessageActions } from '../actions';
+import createLogger from '../lib/logger';
+
+const LOG = createLogger('MessageHandler');
 
 export class MessageHandler {
   constructor(private readonly messageActions: MessageActions) {
@@ -10,10 +13,11 @@ export class MessageHandler {
   }
 
   public async newMessage(req: Request , res: Response): Promise<void> {
-    const message = _.get(req.query, 'message');
-    // const channelId = _.get(req.query, 'channelId');
-    const isMentioned = _.get(req.query, 'isMentioned') === 'true' ? true : false;
-    // const authorId = _.get(req.query, 'authorId');
+    LOG.info(JSON.stringify(req.body));
+    const message = _.get(req.body, 'message');
+    // const channelId = _.get(req.body, 'channelId');
+    const isMentioned = _.get(req.body, 'isMentioned', false);
+    // const authorId = _.get(req.body, 'authorId');
 
     if (!message) {
       res.status(400).send('Message is required.');

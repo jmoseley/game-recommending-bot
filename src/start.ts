@@ -49,7 +49,7 @@ async function start(): Promise<void> {
   const router = Router();
   // TODO: Make the handlers own the routes.
   router.get('/status', statusHandler.status);
-  router.get('/message/new', messageHandler.newMessage);
+  router.post('/message/new', messageHandler.newMessage);
 
   app.use(router);
 
