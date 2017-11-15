@@ -14,17 +14,22 @@ export class MessageHandler {
 
   public async newMessage(req: Request , res: Response): Promise<void> {
     LOG.info(JSON.stringify(req.body));
-    const message = _.get(req.body, 'message');
+
+    const message = req.body.message;
+    const eventName = req.body.eventName;
     // const channelId = _.get(req.body, 'channelId');
     const isMentioned = _.get(req.body, 'isMentioned', false);
     // const authorId = _.get(req.body, 'authorId');
 
-    if (!message) {
-      res.status(400).send('Message is required.');
-      return;
+    let result: any;
+    if (message) {
+      result = await this.messageActions.handleMessage(message, isMentioned);
+    } else if (eventName === 'presenceUpdate') {
+      const gameName = req.body.gameName;
+      const oldGameName = req.body.oldGameName;
+      const username = req.body.username;
+      result = await this.messageActions.handlePresenceUpdate(username, gameName, oldGameName);
     }
-
-    const result = await this.messageActions.handleMessage(message, isMentioned);
 
     res.status(200);
     if (result) {

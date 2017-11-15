@@ -11,11 +11,11 @@ const store = new SteamStoreClient();
 export default class SteamStore {
   constructor(private readonly steamDetailsClient: SteamDetails) {}
 
-  public async search(term: string): Promise<Array<IAppInfo | null>> {
+  public async search(term: string): Promise<IAppInfo[]> {
     const results = await store.steam('storeSearch', term);
 
     // Only return the top 5.
-    return await this.buildSearchResults(_.take(results, 5));
+    return _.compact(await this.buildSearchResults(_.take(results, 5)));
   }
 
   private async buildSearchResults(

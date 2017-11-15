@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as autobind from 'protobind';
 
 import createLogger from '../lib/logger';
-import SteamDetails from '../lib/steam_details';
+import SteamDetails, { IAppInfo } from '../lib/steam_details';
 import SteamStore from '../lib/steam_store';
 
 const LOG = createLogger('MessageActions');
@@ -48,6 +48,25 @@ export class MessageActions {
     private readonly steamStore: SteamStore,
   ) {
     autobind(this);
+  }
+
+  public async handlePresenceUpdate(
+    username: string,
+    newGame: string,
+    oldGame: string,
+  ): Promise<string | null> {
+    if (!newGame || newGame === oldGame) {
+      return null;
+    }
+
+    const results = await this.steamStore.search(newGame);
+    if (!results.length) {
+      LOG.info(`No results found for '${newGame}'.`);
+      return null;
+    }
+
+    // Let's try trusting the first result.
+    return this.appendFormattedAppInfo(`${username} just started playing ${newGame}!`, results[0]);
   }
 
   public async handleMessage(
@@ -101,14 +120,16 @@ export class MessageActions {
       }
 
       const response = `Here's what I found for '${gameTitle}' from Steam:`;
-      return _.reduce(_.compact(results), (res, result) => {
-        return `${res}\n\n${result.name}:\n` +
-          `Price: $${result.priceCents / 100}\n` +
-          `Categories: ${_.join(result.categories, ', ')}\n` +
-          `Active Players on Steam: ${result.activePlayers}\n` +
-          `${result.link}`;
-      }, response);
+      return _.reduce(results, this.appendFormattedAppInfo, response);
     }
     return null;
+  }
+
+  private appendFormattedAppInfo(base: string, appInfo: IAppInfo): string {
+    return `${base}\n\n${appInfo.name}:\n` +
+      `Price: $${appInfo.priceCents / 100}\n` +
+      `Categories: ${_.join(appInfo.categories, ', ')}\n` +
+      `Active Players on Steam: ${appInfo.activePlayers}\n` +
+      `${appInfo.link}`;
   }
 }
