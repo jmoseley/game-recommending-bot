@@ -7,6 +7,8 @@ import createLogger from '../lib/logger';
 
 const LOG = createLogger('MessageHandler');
 
+const BOT_CHATTER_CHANNEL_ID = '383364848068853760';
+
 export class MessageHandler {
   constructor(private readonly messageActions: MessageActions) {
     autobind(this);
@@ -17,25 +19,23 @@ export class MessageHandler {
 
     const message = req.body.message;
     const eventName = req.body.eventName;
-    // const channelId = _.get(req.body, 'channelId');
     const isMentioned = _.get(req.body, 'isMentioned', false);
     // const authorId = _.get(req.body, 'authorId');
 
-    let result: any;
+    const body: any = {};
     if (message) {
-      result = await this.messageActions.handleMessage(message, isMentioned);
+      // const channelId = _.get(req.body, 'channelId');
+      body.message = await this.messageActions.handleMessage(message, isMentioned);
     } else if (eventName === 'presenceUpdate') {
       const gameName = req.body.gameName;
       const oldGameName = req.body.oldGameName;
       const username = req.body.username;
-      result = await this.messageActions.handlePresenceUpdate(username, gameName, oldGameName);
+      // Only do this in the one channel.
+      body.channelId = BOT_CHATTER_CHANNEL_ID;
+      body.message = await this.messageActions.handlePresenceUpdate(username, gameName, oldGameName);
     }
 
     res.status(200);
-    if (result) {
-      res.send({ message: result });
-    } else {
-      res.send();
-    }
+    res.send(body);
   }
 }
