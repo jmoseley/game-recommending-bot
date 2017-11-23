@@ -66,7 +66,7 @@ export class MessageActions {
     }
 
     // Let's try trusting the first result.
-    return this.appendFormattedAppInfo(`${username} just started playing ${newGame}!`, results[0]);
+    return this.appendFormattedAppInfo(`@${username} just started playing ${newGame}!`, results[0]);
   }
 
   public async handleMessage(
